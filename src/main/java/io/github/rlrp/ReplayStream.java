@@ -19,13 +19,18 @@ public class ReplayStream extends ByteArrayInputStream {
     }
 
     public String readString() {
-        // Encoded string includes '\0'. Don't include it in returned string.
-        int length = readInteger32(true) - 1;
+        int length = readInteger32(true);
+        return readString(length);
+    }
 
-        ByteBuffer buffer = ByteBuffer.allocate(length);
-        for (int i = 0; i < length; i++) {
+    public String readString(int length) {
+        ByteBuffer buffer = ByteBuffer.allocate(length - 1);
+        for (int i = 0; i < length - 1; i++) {
             buffer.put((byte)this.read());
         }
+
+        // Encoded string includes '\0'. Don't include it in returned string.
+        this.skip(1);
 
         buffer.position(0);
         return new String(buffer.array());
