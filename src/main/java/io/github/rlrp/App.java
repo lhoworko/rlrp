@@ -15,8 +15,9 @@ public class App
         Path path = Paths.get("X:\\1CB5B12048B2375034255A9631B4F57D.replay");
         //Path path = Paths.get("C:\\Projects\\Rlrp\\samples\\5F2FDD7C4557AA31982BE79BAA63373F.replay");
         byte[] data = Files.readAllBytes(path);
+        ReplayStream stream = new ReplayStream(data);
 
-        ReplayHeader header = ReplayHeader.deserialize(data);
+        ReplayHeader header = ReplayHeader.deserialize(stream);
 //
 //        for(int i = 0; i < data.length - 1; i++) {
 //            BinaryString value = new BinaryString(data, i);

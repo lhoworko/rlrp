@@ -1,7 +1,5 @@
 package io.github.rlrp;
 
-import java.io.ByteArrayInputStream;
-
 public class ReplayHeader {
 
     private Integer length;
@@ -11,17 +9,16 @@ public class ReplayHeader {
 
     private ReplayHeader() {}
 
-    public static ReplayHeader deserialize(byte[] data) {
+    public static ReplayHeader deserialize(ReplayStream stream) {
         ReplayHeader header = new ReplayHeader();
-        ByteArrayInputStream stream = new ByteArrayInputStream(data);
 
-        header.length = BinaryInteger.read32(stream, true);
-        header.crc = BinaryInteger.read32(stream, true);
-        header.majorVersion = BinaryInteger.read32(stream, true);
-        header.minorVersion = BinaryInteger.read32(stream, true);
+        header.length = stream.readInteger32(true);
+        header.crc = stream.readInteger32(true);
+        header.majorVersion = stream.readInteger32(true);
+        header.minorVersion = stream.readInteger32(true);
 
         // TAGame.Replay_Soccer_TA signifies start of header data.
-        String s = BinaryString.read(stream);
+        String s = stream.readString();
 
         return header;
     }
