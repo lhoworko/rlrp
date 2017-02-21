@@ -27,6 +27,6 @@ public class Property<String,V> implements Map.Entry<String,V> {
     }
 
     public java.lang.String toString() {
-        return getKey() + ":" + getValue();
+        return getKey() + ":" + getValue().toString() + "\n";
     }
 }

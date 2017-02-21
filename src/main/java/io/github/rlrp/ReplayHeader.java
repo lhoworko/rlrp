@@ -29,10 +29,25 @@ public class ReplayHeader {
         Property property;
         do {
             property = PropertyFactory.getNextProperty(stream);
-            header.propertyList.add(property);
-            System.out.println(property);
+            if(property != null) {
+                header.propertyList.add(property);
+            }
         } while (property != null);
 
         return header;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(String.format("Length: %d\n", this.length));
+        builder.append(String.format("crc: %d\n", this.crc));
+        builder.append(String.format("majorVersion: %d\n", this.majorVersion));
+        builder.append(String.format("minorVersion: %d\n", this.minorVersion));
+
+        for(Object p : propertyList) {
+            builder.append("\t" + p.toString() + "\n");
+        }
+        return builder.toString();
     }
 }

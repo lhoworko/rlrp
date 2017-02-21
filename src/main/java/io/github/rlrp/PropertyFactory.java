@@ -20,7 +20,7 @@ public class PropertyFactory {
         Object value = null;
 
         try {
-            value = getPropertyValue(stream, type, dataLength);
+            value = getPropertyValue(stream, PropertyType.valueOf(type), dataLength);
         }
         catch (Exception e) {
             System.out.println("Caught exception, " + e);
@@ -30,37 +30,49 @@ public class PropertyFactory {
         return new Property<String,Object>(name, value);
     }
 
-    private static Object getPropertyValue(ReplayStream stream, String type, int length) throws Exception {
-        if (type.equals("IntProperty")) {
-            return stream.readInteger32(true);
-        }
-        else if (type.equals("StrProperty")) {
-            return stream.readString(length);
-        }
-        else if (type.equals("ArrayProperty")) {
-            List<List<Property>> nestedPropertyList = new ArrayList<List<Property>>();
-            int arrayLen = stream.readInteger32(true);
-
-            for (int i = 0; i < arrayLen; i++) {
-                List<Property> currPropertyList = new ArrayList<Property>();
-                Property property;
-
-                do {
-                    property = PropertyFactory.getNextProperty(stream);
-                    if (property != null) {
-                        currPropertyList.add(property);
-                    }
-                } while (property != null);
-
-                nestedPropertyList.add(currPropertyList);
-            }
-
-            return nestedPropertyList;
-        }
-        else {
-            throw new Exception("Invalid type: " + type);
+    private static Object getPropertyValue(ReplayStream stream, PropertyType propertyType, int length) throws Exception {
+        switch (propertyType) {
+            case IntProperty:
+                return stream.readInteger32(true);
+            case NameProperty:
+            case StrProperty:
+                return stream.readString(length);
+            case ArrayProperty:
+                return getArrayProperty(stream, length);
+            case ByteProperty:
+                return stream.readEnum(length);
+            case QWordProperty:
+                return stream.readLong();
+            case BoolProperty:
+                return stream.readBoolean();
+            case FloatProperty:
+                return stream.readFloat();
+            default:
+                throw new Exception("Invalid type: " + propertyType);
         }
     }
+
+    private static Object getArrayProperty(ReplayStream stream, int length) {
+        List<List<Property>> nestedPropertyList = new ArrayList<List<Property>>();
+        int arrayLen = stream.readInteger32(true);
+
+        for (int i = 0; i < arrayLen; i++) {
+            List<Property> currPropertyList = new ArrayList<Property>();
+            Property property;
+
+            do {
+                property = PropertyFactory.getNextProperty(stream);
+                if (property != null) {
+                    currPropertyList.add(property);
+                }
+            } while (property != null);
+
+            nestedPropertyList.add(currPropertyList);
+        }
+
+        return nestedPropertyList;
+    }
+
 }
 
 
