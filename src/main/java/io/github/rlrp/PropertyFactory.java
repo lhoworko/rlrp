@@ -20,7 +20,7 @@ public class PropertyFactory {
         Object value = null;
 
         try {
-            value = getPropertyValue(stream, PropertyType.valueOf(type), dataLength);
+            value = getPropertyValue(name, stream, PropertyType.valueOf(type), dataLength);
         }
         catch (Exception e) {
             System.out.println("Caught exception, " + e);
@@ -30,12 +30,26 @@ public class PropertyFactory {
         return new Property<String,Object>(name, value);
     }
 
-    private static Object getPropertyValue(ReplayStream stream, PropertyType propertyType, int length) throws Exception {
+    private static Object getPropertyValue(String name, ReplayStream stream, PropertyType propertyType, int length) throws Exception {
         switch (propertyType) {
             case IntProperty:
                 return stream.readInteger32(true);
             case NameProperty:
             case StrProperty:
+                if(name.equals("PlayerName")){
+                    return stream.readString();
+                }
+                // This works for some of the older replays
+                // Dies in a fire for replay 5F2FDD7C4557AA31982BE79BAA63373F
+                if(name.equals("PlayerName") ||
+                        name.equals("Name") ||
+                        name.equals("MapName") ||
+                        name.equals("MatchType") ||
+                        name.equals("Date") ||
+                        name.equals("BuildVersion") ||
+                        name.equals("ReplayName")) {
+                    return stream.readString();
+                }
                 return stream.readString(length);
             case ArrayProperty:
                 return getArrayProperty(stream, length);
